@@ -2,6 +2,7 @@ package com.minitb.rest;
 
 import com.minitb.entity.Consultant;
 import com.minitb.services.ConsultantService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -19,12 +20,14 @@ public class ConsultantResource {
     ConsultantService consultantService;
 
     @GET
+    @RolesAllowed({"RH", "DIRECTION", "CONSULTANT"})
     public List<Consultant> listOfConsultants() {
         return consultantService.retrieveAll();
     }
 
     @GET
     @Path("/{id}")
+    @RolesAllowed({"RH","DIRECTION","CONSULTANT"})
     public Consultant getConsultant(@PathParam("id") Long id) {
         Consultant consultant = consultantService.retrieveById(id);
         if (consultant == null) throw new NotFoundException();
@@ -33,6 +36,7 @@ public class ConsultantResource {
 
     @POST
     @Transactional
+    @RolesAllowed("RH")
     public Response create(Consultant c) {
         Consultant created = consultantService.addConsultant(c);
         return Response.status(Response.Status.CREATED).entity(created).build();

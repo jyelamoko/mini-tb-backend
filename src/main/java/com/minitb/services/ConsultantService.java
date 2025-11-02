@@ -1,7 +1,9 @@
 package com.minitb.services;
 
 import com.minitb.entity.Consultant;
+import com.minitb.repository.ConsultantRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -11,29 +13,32 @@ import java.util.List;
 @ApplicationScoped
 public class ConsultantService {
 
+    @Inject
+    ConsultantRepository cRepository;
+
     public List<Consultant> retrieveAll() {
-        return Consultant.listAll();
+        return cRepository.listAll();
     }
 
     public Consultant retrieveById(Long id) {
-        return Consultant.findById(id);
+        return cRepository.findById(id);
     }
 
     @Transactional
     public Consultant addConsultant(Consultant consultant) {
-        boolean exists = Consultant.find("email = ?1 OR phoneNumber = ?2", consultant.email, consultant.phoneNumber)
+        boolean exists = cRepository.find("email = ?1 OR phoneNumber = ?2", consultant.email, consultant.phoneNumber)
                 .firstResult() != null;
         if (exists) {
             throw new WebApplicationException("Consultant déjà existant en BDD", Response.Status.CONFLICT);
         }
         consultant.id = null;
-        consultant.persist();
+        cRepository.persist(consultant);
         return consultant;
     }
 
     @Transactional
     public Consultant updateConsultant(Long id, Consultant updated) {
-        Consultant consultantEntity = Consultant.findById(id);
+        Consultant consultantEntity = cRepository.findById(id);
         if (consultantEntity == null) {
             return null;
         }
@@ -49,6 +54,6 @@ public class ConsultantService {
 
     @Transactional
     public boolean removeConsultant(Long id) {
-        return Consultant.deleteById(id);
+        return cRepository.deleteById(id);
     }
 }
