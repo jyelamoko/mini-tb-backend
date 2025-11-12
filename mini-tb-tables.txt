@@ -1,0 +1,52 @@
+-- ======= consultants definition ==========
+CREATE TABLE consultants (
+	id int8 NOT NULL,
+	email varchar(255) NULL,
+	first_name varchar(100) NOT NULL,
+	hire_date date NOT NULL,
+	job_title varchar(100) NULL,
+	last_name varchar(100) NOT NULL,
+	phone_number varchar(255) NULL,
+	status varchar(50) NULL,
+	CONSTRAINT consultants_pkey PRIMARY KEY (id),
+	CONSTRAINT ukji468hmjokfct2iwxj0kusskl UNIQUE (email)
+);
+
+-- ======== projects definition =======================
+CREATE TABLE public.projects (
+	id int8 NOT NULL,
+	client varchar(150) NOT NULL,
+	description varchar(255) NULL,
+	end_date date NULL,
+	project_name varchar(150) NOT NULL,
+	start_date date NOT NULL,
+	state varchar(255) NULL,
+	CONSTRAINT projects_pkey PRIMARY KEY (id)
+);
+
+-- ============== performances definition ==========================
+CREATE TABLE performances (
+	id int8 NOT NULL,
+	consultant_id int8 NOT NULL,
+	"comments" varchar(255) NULL,
+	evaluation_note float8 NULL,
+	month_perf varchar(7) NOT NULL,
+	occupancy_rate float8 NULL,
+	CONSTRAINT performances_pkey PRIMARY KEY (id),
+	CONSTRAINT uk2fpiqmcr90co5noixkd8eehn0 UNIQUE (consultant_id, month_perf)
+);
+ALTER TABLE performances ADD CONSTRAINT fklpjvye5ftoqhi60yckjn7r7to FOREIGN KEY (consultant_id) REFERENCES consultants(id);
+
+
+-- ======= missions definition ====================
+ CREATE TABLE missions (
+ 	id int8 NOT NULL,
+ 	end_date_mission date NULL,
+ 	"role" varchar(100) NULL,
+ 	start_date_mission date NOT NULL,
+ 	id_consultant int8 NOT NULL,
+ 	id_project int8 NOT NULL,
+ 	CONSTRAINT missions_pkey PRIMARY KEY (id)
+ );
+ ALTER TABLE missions ADD CONSTRAINT fkcvg9m29vnqxw57yg6kgahspke FOREIGN KEY (id_project) REFERENCES projects(id);
+ ALTER TABLE missions ADD CONSTRAINT fkoty1b56sd67aowcfk6khd4s8s FOREIGN KEY (id_consultant) REFERENCES consultants(id);

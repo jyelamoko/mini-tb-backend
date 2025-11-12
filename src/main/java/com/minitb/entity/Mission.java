@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-@Table(name = "MISSIONS")
+@Table(name = "missions")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Mission extends PanacheEntity {

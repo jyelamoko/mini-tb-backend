@@ -1,5 +1,24 @@
+# Ignore tout par défaut
 *
+
+# Ré-autorise les fichiers nécessaires à la compilation
+!pom.xml
+!src/**
+
+# Ré-autorise les fichiers nécessaires pour l'image finale (JAR ou Quarkus app)
 !target/*-runner
 !target/*-runner.jar
-!target/lib/*
-!target/quarkus-app/*
+!target/lib/**
+!target/quarkus-app/**
+
+# Garde le Dockerfile et docker-compose
+!Dockerfile
+!docker-compose.yml
+
+# Ignore les fichiers inutiles
+**/.DS_Store
+**/.git
+**/.idea
+**/node_modules
+**/target/test-classes
+**/target/surefire-reports

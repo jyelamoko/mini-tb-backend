@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-@Table(name = "PROJECTS")
+@Table(name = "projects")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Project extends PanacheEntity {
