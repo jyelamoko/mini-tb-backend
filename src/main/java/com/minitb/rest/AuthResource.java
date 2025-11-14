@@ -1,10 +1,16 @@
 package com.minitb.rest;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
+import com.minitb.entity.UserEntity;
+import com.minitb.repository.UserRepository;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.inject.Inject;
+
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -19,15 +25,11 @@ import java.util.*;
 @Consumes(MediaType.APPLICATION_JSON)
 public class AuthResource {
 
-    // Prototype : user store in-memory
-    private static final Map<String, User> USERS = new HashMap<>();
+    @Inject
+    UserRepository userRepository;
 
-    static {
-        USERS.put("rh", new User("rh", "rhpass", List.of("RH")));
-        USERS.put("dir", new User("dir", "dirpass", List.of("DIRECTION")));
-        USERS.put("consult", new User("consult", "consultpass", List.of("CONSULTANT")));
-        USERS.put("admin", new User("admin", "admin", Arrays.asList("RH", "DIRECTION")));
-    }
+    @ConfigProperty(name = "jwt.duration", defaultValue = "3600")
+    long tokenDuration; // en secondes
 
     @POST
     @Path("/login")
@@ -38,11 +40,25 @@ public class AuthResource {
                     .build();
         }
 
-        User u = USERS.get(cred.username);
-        if (u == null || !u.password.equals(cred.password)) {
+        var userOpt = userRepository.findByUsername(cred.username);
+        if (userOpt.isEmpty()) {
             return Response.status(Response.Status.UNAUTHORIZED)
-                    .entity(Map.of("error", "Invalid credentials"))
-                    .build();
+                    .entity(Map.of("error", "Invalid credentials")).build();
+        }
+
+        UserEntity user = userOpt.get();
+
+        System.out.println("DEBUG -> username=" + user.username + ", passwordHash=" + user.passwordHash);
+
+        System.out.println("DEBUG BCrypt verify: " + BCrypt.verifyer()
+                .verify("rhpass".toCharArray(), "$2a$12$kK6PQ9uU2B.Fm6p4BjXgyei1b5NqBPJ8i2p9C4FvN58sLB3lsrb0K")
+                .verified);
+
+        // Vérifcation du mot de passe avec BCrypt
+        BCrypt.Result result = BCrypt.verifyer().verify(cred.password.toCharArray(), user.passwordHash);
+        if (!result.verified) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(Map.of("error", "Invalid credentials")).build();
         }
 
         try {
@@ -66,15 +82,15 @@ public class AuthResource {
             // Build JWT
             String token = Jwt.issuer("mini-tb")
                     .upn(cred.username)
-                    .claim("groups", u.roles)
-                    .expiresAt(Instant.now().plusSeconds(3600))
+                    .claim("groups", user.roles)
+                    .expiresAt(Instant.now().plusSeconds(tokenDuration))
                     .sign(privateKey);
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("token", token);
-            result.put("username", cred.username);
-            result.put("roles", u.roles);
-            return Response.ok(result).build();
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("token", token);
+            resultMap.put("username", cred.username);
+            resultMap.put("roles", user.roles);
+            return Response.ok(resultMap).build();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,17 +107,10 @@ public class AuthResource {
         return Response.ok(Map.of("message", "Bienvenue RH, accès autorisé ✅")).build();
     }
 
+    // --- DTO interne ----
     public static class Credentials {
         public String username;
         public String password;
     }
 
-    private static class User {
-        public String username;
-        public String password;
-        public List<String> roles;
-        public User(String u, String p, List<String> r) {
-            username = u; password = p; roles = r;
-        }
-    }
 }

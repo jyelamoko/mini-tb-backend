@@ -1,9 +1,7 @@
 package com.minitb.entity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,4 +37,8 @@ public class Consultant extends PanacheEntity {
 
     @Column(name = "phone_number")
     public String phoneNumber;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    public UserEntity user;
 }

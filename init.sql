@@ -1,3 +1,33 @@
+-- =============================================
+-- TABLE USERS
+-- =============================================
+CREATE TABLE users (
+    id BIGINT NOT NULL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    passwordhash VARCHAR(255) NOT NULL);
+
+INSERT INTO users (id, username, passwordhash) VALUES
+    (1, 'rh', '$2a$12$/1oiykyZ3IzO07HvlE.XZuGSrs/Yoo24VyiaFcVsE64txRUmg5wMa'),
+    (2, 'dir', '$2a$12$5.yHzK52LIu/fvX0P/oI0udMOVPRZGC0OkGwLNxevO0wF/XQUWmyK'),
+    (3, 'consult', '$2a$12$LeO18vIarw46j6ptIvRNHOO8jfyA40Dw9tbJLBousGdUTv4G81Fya'),
+    (4, 'admin', '$2a$12$KHobhu0vaWkHQ9mjDrFBGOYrGUzz../9rngnvc6toIneHzo8fn6jm');
+
+-- =============================================
+-- TABLE USER_ROLES
+-- =============================================
+CREATE TABLE user_roles (
+    user_id BIGINT NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    CONSTRAINT fk_user_roles_user FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+INSERT INTO user_roles (user_id, role) VALUES
+    (1, 'RH'),
+    (2, 'DIRECTION'),
+    (3, 'CONSULTANT'),
+    (4, 'RH'),
+    (4, 'DIRECTION');
+
 -- ======= consultants definition ==========
 
 CREATE TABLE consultants (
@@ -9,19 +39,21 @@ CREATE TABLE consultants (
     last_name varchar(100) NOT NULL,
     phone_number varchar(255) NULL,
     status varchar(50) NULL,
+    user_id BIGINT UNIQUE,
     CONSTRAINT consultants_pkey PRIMARY KEY (id),
-    CONSTRAINT ukji468hmjokfct2iwxj0kusskl UNIQUE (email)
+    CONSTRAINT ukji468hmjokfct2iwxj0kusskl UNIQUE (email),
+    CONSTRAINT fk_consult_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 INSERT INTO consultants (id, first_name, last_name, job_title, status, hire_date, email, phone_number) VALUES
-    (1, 'Steven', 'King', 'Tech Lead Dev Java', 'Actif', '2021-09-01', 's.king@entreprise.com', '0615263748'),
-    (2, 'Martin', 'Lucas', 'Développeur FullStack', 'Actif', '2021-09-01', 'lucas.martin@entreprise.com', '0605060708'),
-    (3, 'Nguyen', 'Sophie', 'Chef de projet IT', 'En mission', '2020-11-15', 'sophie.nguyen@entreprise.com', '0611223344'),
-    (4, 'Diallo', 'Amadou', 'Data Analyst', 'Actif', '2022-05-20', 'amadou.diallo@entreprise.com', '0622334455'),
-    (5, 'Dupont', 'Julien', 'Consultant Sécurité', 'Disponible', '2021-02-12', 'julien.dupont@entreprise.com', '0644556677'),
-    (6, 'Benali', 'Karim', 'Développeur Backend', 'Actif', '2020-06-22', 'karim.benali@entreprise.com', '0677889900'),
-    (7, 'Lemoine', 'Alice', 'Consultante CRM', 'Actif', '2019-08-01', 'alice.lemoine@entreprise.com', '0633445566'),
-    (8,'Moreau', 'Nina', 'UX Designer', 'En mission', '2021-01-05', 'nina.moreau@entreprise.com', '0611223344');
+    (1, 'Steven', 'King', 'Tech Lead Dev Java', 'Actif', '2021-09-01', 's.king@entreprise.com', '0615263748', 1),
+    (2, 'Martin', 'Lucas', 'Développeur FullStack', 'Actif', '2021-09-01', 'lucas.martin@entreprise.com', '0605060708', 2),
+    (3, 'Nguyen', 'Sophie', 'Chef de projet IT', 'En mission', '2020-11-15', 'sophie.nguyen@entreprise.com', '0611223344', 3),
+    (4, 'Diallo', 'Amadou', 'Data Analyst', 'Actif', '2022-05-20', 'amadou.diallo@entreprise.com', '0622334455', NULL),
+    (5, 'Dupont', 'Julien', 'Consultant Sécurité', 'Disponible', '2021-02-12', 'julien.dupont@entreprise.com', '0644556677', NULL),
+    (6, 'Benali', 'Karim', 'Développeur Backend', 'Actif', '2020-06-22', 'karim.benali@entreprise.com', '0677889900', NULL),
+    (7, 'Lemoine', 'Alice', 'Consultante CRM', 'Actif', '2019-08-01', 'alice.lemoine@entreprise.com', '0633445566', NULL),
+    (8,'Moreau', 'Nina', 'UX Designer', 'En mission', '2021-01-05', 'nina.moreau@entreprise.com', '0611223344', 4);
 
 -- ======== projects definition =======================
 CREATE TABLE public.projects (
@@ -90,7 +122,6 @@ CREATE TABLE missions (
 
 ALTER TABLE missions ADD CONSTRAINT fkcvg9m29vnqxw57yg6kgahspke FOREIGN KEY (id_project) REFERENCES projects(id);
 ALTER TABLE missions ADD CONSTRAINT fkoty1b56sd67aowcfk6khd4s8s FOREIGN KEY (id_consultant) REFERENCES consultants(id);
-
 
 INSERT INTO missions (id, id_consultant, id_project, role, start_date_mission, end_date_mission) VALUES
     (1, 1, 1, 'Consultante RH Senior', '2023-01-15', '2023-11-30'),

@@ -133,6 +133,19 @@ https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM
       <version>1.1.4</version>
     </dependency>
 
+    <!-- BCrypt avec Quarkus -->
+    <dependency>
+      <groupId>at.favre.lib</groupId>
+      <artifactId>bcrypt</artifactId>
+      <version>0.9.0</version>
+    </dependency>
+
+    <!-- Flyway for Quarkus -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-flyway</artifactId>
+    </dependency>
+
   </dependencies>
   <build>
     <plugins>
